@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>NY背景生成器-格纹｜复杂格纹预设 · 预览 · 导出（单文件）</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --surface: #0f172a;
+    --surface-2: #111827;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --border: #1f2937;
+    --primary: #8b5cf6;
+    --primary-2: #22d3ee;
+    --ok: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --shadow: 0 10px 30px rgba(0,0,0,.25), 0 2px 10px rgba(0,0,0,.25);
+    --radius: 14px;
+    /* interaction + slider tokens (dark defaults) */
+    --focus-ring: 0 0 0 3px rgba(139, 92, 246, 0.28);
+    --focus-ring-strong: 0 0 0 4px rgba(139, 92, 246, 0.38);
+    --shadow-color: rgba(0,0,0,0.25);
+    --slider-track: #1f2937;
+    --slider-track-hover: #253044;
+    --slider-track-active: #2a3550;
+    --slider-thumb: var(--primary);
+    --slider-thumb-hover: color-mix(in oklab, var(--primary) 85%, white 15%);
+    --slider-thumb-active: color-mix(in oklab, var(--primary) 70%, white 30%);
+  }
+  [data-theme="light"]{
+    /* light theme tokens (warm-white) */
+    --bg-main: #efeee4;
+    --bg-panel: #f8f7f0;
+    --bg-control: #ece9dc;
+    --border-color: #d6d1c2;
+    --text-primary: #2a2a2a;
+    --text-secondary: #6b6b63;
+
+    /* accents */
+    --accent-primary: #c6843a;
+    --accent-secondary: #ddb07a;
+
+    /* slider */
+    --slider-track: #dcd8cb;
+    --slider-track-hover: #d4cfbf;
+    --slider-track-active: #cbc5b4;
+    --slider-thumb: var(--accent-primary);
+    --slider-thumb-hover: var(--accent-secondary);
+    --slider-thumb-active: #b97730;
+
+    /* focus ring & shadow */
+    --focus-ring: 0 0 0 3px rgba(198, 132, 58, 0.28);
+    --focus-ring-strong: 0 0 0 4px rgba(198, 132, 58, 0.38);
+    --shadow-color: rgba(0,0,0,0.10);
+
+    /* map to app variables */
+    --bg: var(--bg-main);
+    --surface: var(--bg-panel);
+    --surface-2: var(--bg-control);
+    --text: var(--text-primary);
+    --muted: var(--text-secondary);
+    --border: var(--border-color);
+    --primary: var(--accent-primary);
+    --primary-2: var(--accent-secondary);
+    --shadow: 0 12px 30px var(--shadow-color), 0 3px 10px color-mix(in oklab, var(--shadow-color) 60%, transparent);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
+    color: var(--text);
+    background: radial-gradient(1200px 800px at 20% -10%, rgba(139,92,246,.15), transparent 60%),
+                radial-gradient(1000px 700px at 120% 120%, rgba(34,211,238,.14), transparent 60%),
+                var(--bg);
+  }
+
+  .app {
+    max-width: 1440px;
+    margin: 24px auto 40px;
+    padding: 0 16px;
+  }
+
+  header.app-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 14px 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 92%, transparent), var(--surface));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    position: sticky; top: 12px; z-index: 10;
+    backdrop-filter: blur(8px);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .2px;
+  }
+  .brand .logo {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: conic-gradient(from 190deg at 60% 40%, var(--primary), var(--primary-2), var(--primary));
+    box-shadow: 0 6px 18px rgba(139,92,246,.35), inset 0 0 30px rgba(34,211,238,.08);
+  }
+  .brand .title { font-size: 16px; }
+  .brand .subtitle {
+    font-size: 12px; color: var(--muted); font-weight: 500;
+    padding: 2px 8px; border-radius: 20px; border: 1px dashed var(--border);
+  }
+
+  .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .btn {
+    -webkit-tap-highlight-color: transparent;
+    appearance: none; border: 0; cursor: pointer;
+    padding: 10px 14px; border-radius: 12px; font-weight: 600; color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    transition: transform .06s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn.primary {
+    background: linear-gradient(180deg, color-mix(in oklab, var(--primary) 92%, #000 0%), var(--primary));
+    color: white; border: 0; box-shadow: 0 10px 20px rgba(139,92,246,.35);
+  }
+  .btn.ghost {
+    background: transparent;
+    border: 1px dashed var(--border);
+  }
+  .btn.small { padding: 8px 10px; border-radius: 10px; font-size: 12px; }
+
+  .select, .input, .color {
+    appearance: none; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text);
+    padding: 10px 12px; border-radius: 12px; font-weight: 600; min-width: 56px; width: 100%;
+  }
+  .select { padding-right: 28px; background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 22px) calc(1em - 2px), calc(100% - 16px) calc(1em - 2px);
+    background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+  }
+  .color { padding: 0; width: 42px; height: 38px; }
+
+  .main {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: var(--sidebar-width, 420px) var(--splitter-width, 10px) 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  /* sticky columns and independent scroll on desktop */
+  .sidebar-col {
+    position: sticky;
+    top: var(--sticky-top, 88px);
+    align-self: start;
+    display: grid;
+    gap: 12px;
+    max-height: calc(100vh - var(--sticky-top, 88px) - 8px);
+    overflow: auto;
+    /* reserve space for scrollbar to prevent overlay/occlusion */
+    scrollbar-gutter: stable both-edges;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+  }
+  @media (max-width: 980px){
+    .main { grid-template-columns: 1fr; }
+    .sidebar-col { position: static; max-height: none; overflow: visible; padding-right: 0; }
+    .preview-card { position: static; top: auto; }
+  }
+  /* sidebar themed scrollbars + sticky headers + container queries */
+  .sidebar-col::-webkit-scrollbar { width: 10px; height: 10px; }
+  .sidebar-col::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--muted) 35%, transparent);
+    border-radius: 999px;
+    border: 2px solid color-mix(in oklab, var(--surface-2) 80%, transparent);
+  }
+  .sidebar-col::-webkit-scrollbar-track {
+    background: color-mix(in oklab, var(--surface-2) 85%, transparent);
+    border-radius: 999px;
+  }
+  .sidebar-col {
+    scrollbar-color: color-mix(in oklab, var(--muted) 35%, transparent) color-mix(in oklab, var(--surface-2) 85%, transparent);
+    scrollbar-width: thin;
+  }
+
+  .sidebar-col .panel .panel-header {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 88%, transparent), color-mix(in oklab, var(--surface) 96%, transparent));
+    backdrop-filter: blur(10px) saturate(1.08);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .presets-panel .panel-body,
+  .controls-panel .panel-body {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 480px) {
+    .presets-panel .style-tabs { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .presets-panel .tab { padding: 8px 10px; }
+  }
+  @container (max-width: 420px) {
+    .presets-panel .style-tabs { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .presets-panel .tab { padding: 6px 8px; }
+    .controls-panel .row { grid-template-columns: 1fr; }
+    .controls-panel .field .inline { flex-wrap: wrap; gap: 6px; }
+  }
+
+  .field .value { min-width: 42px; text-align: right; }
+  .field .inline { flex-wrap: wrap; }
+  .field .inline .value { margin-left: auto; padding-left: 8px; }
+
+  /* collapsible + splitter */
+  .splitter {
+    cursor: col-resize;
+    align-self: stretch;
+    justify-self: center;
+    width: var(--splitter-width, 10px);
+    border: 1px dashed var(--border);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--muted) 12%, transparent);
+    backdrop-filter: blur(6px);
+    transition: background .15s ease, border-color .15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+  .splitter:hover { background: color-mix(in oklab, var(--muted) 18%, transparent); border-color: color-mix(in oklab, var(--primary) 28%, var(--border)); }
+  .splitter.active { background: color-mix(in oklab, var(--primary) 18%, transparent); border-color: var(--primary); }
+
+  .panel {
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 82%, transparent), color-mix(in oklab, var(--surface) 96%, transparent));
+    border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px) saturate(1.1);
+  }
+  .panel .panel-header {
+    padding: 12px 14px; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .panel .panel-body { padding: 14px; }
+
+  .style-tabs { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+  @media (max-width: 420px){ .style-tabs { grid-template-columns: repeat(2, 1fr); } }
+  .tab {
+    display: flex; align-items: center; gap: 10px;
+    background: color-mix(in oklab, var(--surface-2) 82%, transparent);
+    border: 1px solid color-mix(in oklab, var(--border) 70%, transparent); border-radius: 12px;
+    padding: 10px 12px; font-weight: 800; cursor: pointer;
+    transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    color: var(--text);
+    backdrop-filter: blur(8px) saturate(1.05);
+  }
+  .tab:hover { transform: translateY(-1px); }
+  .tab.active {
+    border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+    box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--primary) 35%, transparent), 0 6px 20px rgba(0,0,0,.18);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--primary) 10%, transparent), transparent) color-mix(in oklab, var(--surface-2) 85%, transparent);
+  }
+
+  .controls { display: grid; gap: 12px; }
+  .group { padding: 12px; border: 1px dashed var(--border); border-radius: 12px; background: color-mix(in oklab, var(--surface) 96%, transparent); }
+  .group h4 { margin: 0 0 10px; font-size: 13px; font-weight: 800; letter-spacing: .3px; color: var(--muted); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field { display: grid; gap: 6px; }
+  .field label { font-size: 12px; font-weight: 700; color: var(--muted); display:flex; align-items:center; gap:6px; }
+  .field .hint { font-size: 11px; color: var(--muted); opacity:.9; }
+  .field .value { font-size: 12px; color: var(--muted); font-weight: 700; }
+  .field input[type="range"]{ width: 100%; accent-color: var(--primary); }
+  .field .inline { display:flex; gap:8px; align-items:center; }
+  .chip { padding: 6px 10px; border-radius: 999px; background: color-mix(in oklab, var(--surface-2) 82%, transparent); border: 1px solid color-mix(in oklab, var(--border) 70%, transparent); font-weight: 700; cursor: pointer; backdrop-filter: blur(6px); transition: .15s ease; }
+  .chip:hover { transform: translateY(-1px); }
+  .chip.active { border-color: var(--primary); box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--primary) 30%, transparent), 0 6px 18px rgba(0,0,0,.14); }
+  /* Export modal: make '透明' checkbox visibly checkable and support disabled state */
+  #exportTransparent {
+    position: relative;
+    display: inline-block;
+  }
+  #exportTransparent:checked {
+    background: var(--primary);
+    border-color: var(--primary) !important;
+  }
+  #exportTransparent:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: 2px solid white;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+  }
+  label.chip[aria-disabled="true"] {
+    opacity: .6;
+    pointer-events: none;
+  }
+
+  .layers { display: grid; gap: 10px; }
+  .layer {
+    border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: color-mix(in oklab, var(--surface) 95%, transparent);
+    display: grid; gap: 8px;
+  }
+  .layer-header { display:flex; align-items:center; justify-content: space-between; gap: 8px; }
+  .layer-header > div:first-child { flex: 1 1 auto; min-width: 0; }
+  .layer-title { font-weight: 800; font-size: 12px; color: var(--muted); }
+  .layer-actions { display:flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .preview-card {
+    padding: 0;
+    overflow: visible;
+    position: sticky;
+    top: var(--sticky-top, 88px);
+    align-self: start;
+    display: grid; gap: 8px;
+  }
+  .preview-wrap {
+    border-radius: calc(var(--radius) + 2px);
+    border: 1px solid var(--border);
+    background: #000;
+    overflow: hidden; position: relative;
+    box-shadow: var(--shadow);
+    aspect-ratio: 16 / 9;
+  }
+  canvas#preview { width: 100%; height: 100%; display: block; background: transparent; }
+  .overlays {
+    position: absolute; inset: 0; pointer-events: none; display:flex; align-items:flex-end; justify-content: space-between;
+    padding: 8px;
+  }
+  .badge {
+    font-size: 11px; font-weight: 800; letter-spacing: .3px;
+    padding: 6px 10px; border-radius: 999px; backdrop-filter: blur(8px);
+    color: var(--text);
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.05));
+  }
+  [data-theme="light"] .badge { background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.45)); }
+  .preview-toolbar {
+    display: flex; gap: 8px; position: absolute; right: 10px; top: 10px; pointer-events: auto;
+  }
+
+  .footer {
+    margin-top: 16px; display:flex; align-items:center; justify-content: space-between; gap:6px;
+    color: var(--muted); font-size: 12px; padding: 10px 4px;
+  }
+
+  /* tiny toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(15px);
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 12px; box-shadow: var(--shadow);
+    padding: 10px 12px; font-weight: 800; font-size: 12px; opacity: 0; pointer-events: none; transition: .25s ease;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* cute toggles */
+  .switch {
+    --w: 46px; --h: 26px; --p: 3px;
+    inline-size: var(--w); block-size: var(--h);
+    background: color-mix(in oklab, var(--muted) 18%, transparent);
+    border: 1px solid var(--border); border-radius: 999px; position: relative; cursor: pointer;
+  }
+  .switch .knob {
+    position: absolute; inset-block: var(--p); inset-inline-start: var(--p);
+    inline-size: calc(var(--h) - var(--p) * 2); block-size: calc(var(--h) - var(--p) * 2);
+    border-radius: 50%; background: white; box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    transition: .18s ease;
+  }
+  body[data-theme="light"] .switch .knob { transform: translateX(calc(var(--w) - var(--h))); }
+
+  .inline-actions { display:flex; gap: 8px; flex-wrap: wrap; }
+  .w-100 { width: 100%; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 1px, 1px); white-space: nowrap; border: 0; }
+
+  /* focus-visible rings */
+  .btn:focus-visible,
+  .chip:focus-visible,
+  .select:focus-visible,
+  .input:focus-visible,
+  .color:focus-visible,
+  .switch:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  .btn.primary:focus-visible { box-shadow: var(--focus-ring-strong); }
+
+  /* hover/active tone alignment */
+  .btn:hover { border-color: color-mix(in oklab, var(--primary) 35%, var(--border)); }
+  .btn:active { transform: translateY(0); box-shadow: none; }
+  .chip:hover { border-color: color-mix(in oklab, var(--primary) 28%, var(--border)); }
+
+  /* enhanced range styling */
+  input[type="range"] {
+    -webkit-appearance: none;
+    background: transparent;
+    height: 24px;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--slider-track);
+  }
+  input[type="range"]:hover::-webkit-slider-runnable-track { background: var(--slider-track-hover); }
+  input[type="range"]:active::-webkit-slider-runnable-track { background: var(--slider-track-active); }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px; margin-top: -6px;
+    border-radius: 50%;
+    background: var(--slider-thumb);
+    border: 2px solid color-mix(in oklab, white 60%, transparent);
+    box-shadow: 0 1px 2px rgba(0,0,0,.12);
+  }
+  input[type="range"]:hover::-webkit-slider-thumb { background: var(--slider-thumb-hover); }
+  input[type="range"]:active::-webkit-slider-thumb { background: var(--slider-thumb-active); }
+
+  /* Firefox */
+  input[type="range"]::-moz-range-track {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--slider-track);
+  }
+  input[type="range"]:hover::-moz-range-track { background: var(--slider-track-hover); }
+  input[type="range"]:active::-moz-range-track { background: var(--slider-track-active); }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--slider-thumb);
+    border: 2px solid color-mix(in oklab, white 60%, transparent);
+    box-shadow: 0 1px 2px rgba(0,0,0,.12);
+  }
+  input[type="range"]:hover::-moz-range-thumb { background: var(--slider-thumb-hover); }
+  input[type="range"]:active::-moz-range-thumb { background: var(--slider-thumb-active); }
+
+  input[type="range"]:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: 999px; }
+  /* fullscreen preview */
+  body.preview-fullscreen { overflow: hidden; }
+  body.preview-fullscreen #previewWrap {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+  }
+  body.preview-fullscreen .preview-toolbar { right: 16px; top: 16px; }
+
+  /* export modal */
+  body.modal-open { overflow: hidden; }
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.35);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+  }
+  .modal {
+    position: fixed;
+    left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(680px, calc(100vw - 32px));
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    z-index: 9999;
+  }
+  .modal-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+  }
+  .modal-body { padding: 14px; }
+  .modal-actions {
+    display:flex; gap:8px; justify-content:flex-end;
+    padding: 12px 14px; border-top: 1px solid var(--border);
+  }
+  .modal[hidden], .modal-overlay[hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="title">NY背景生成器-格纹</div>
+        <div class="subtitle">Ny前端轮椅配套工具</div>
+      </div>
+      <div class="header-actions">
+        <button id="randomBtn" class="btn" aria-label="智能随机生成">随机生成 ✨</button>
+        <button id="openExportModalBtn" class="btn primary" aria-label="打开导出设置" title="打开导出设置">导出设置 ⚙️</button>
+        <div id="themeToggle" class="switch" title="切换明暗模式" aria-label="切换明暗模式">
+          <div class="knob"></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <aside class="sidebar-col">
+        <section class="panel presets-panel">
+          <div class="panel-header">
+            <div style="font-weight:800">预设库</div>
+            <div id="presetsToolbar" class="inline-actions"></div>
+          </div>
+          <div class="panel-body">
+            <div id="styleTabs"></div>
+          </div>
+        </section>
+
+        <section class="panel controls-panel">
+          <div class="panel-header">
+            <div style="font-weight:800">参数控制</div>
+            <div class="inline-actions">
+              <button id="resetBtn" class="btn small ghost" aria-label="恢复默认参数">恢复默认</button>
+              <button id="copyParamsBtn" class="btn small ghost" aria-label="复制当前配置JSON">复制配置</button>
+              <button id="pasteParamsBtn" class="btn small ghost" aria-label="从剪贴板粘贴配置">粘贴配置</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="controls" class="controls"></div>
+          </div>
+        </section>
+      </aside>
+      
+      <div id="splitter" class="splitter" role="separator" aria-orientation="vertical" aria-label="拖拽分栏" title="拖拽分栏"></div>
+      
+      <section class="panel preview-card">
+        <div class="panel-header">
+          <div style="font-weight:800">实时预览</div>
+          <div class="inline-actions">
+            <label class="chip">
+              比例 16:9（横向）
+            </label>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="previewWrap" class="preview-wrap">
+            <canvas id="preview"></canvas>
+            <div class="overlays">
+              <span id="metaBadge" class="badge">1920×1080 · PNG</span>
+            </div>
+            <div class="preview-toolbar">
+              <button id="quickRandom" class="btn small" aria-label="轻微随机微调">换一换 🎲</button>
+              <button id="toggleFullscreenBtn" class="btn small" aria-label="切换全屏预览" title="全屏预览">全屏 ⛶</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast">已复制到剪贴板</div>
+
+  <!-- Export Settings Modal -->
+  <div id="exportModalOverlay" class="modal-overlay" hidden></div>
+  <div id="exportModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle" hidden>
+    <div class="modal-header">
+      <h3 id="exportModalTitle" style="margin:0;font-weight:800;font-size:14px;">导出设置</h3>
+      <button id="closeExportModalBtn" class="btn small ghost" aria-label="关闭导出设置">关闭 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="inline-actions">
+        <select id="exportFormat" class="select" title="导出格式" aria-label="导出格式">
+          <option value="png">PNG</option>
+          <option value="jpeg">JPG</option>
+        </select>
+        <select id="exportSize" class="select" title="预设尺寸" aria-label="预设尺寸">
+          <option value="1280x720">1280×720</option>
+          <option value="1920x1080" selected>1920×1080</option>
+          <option value="2560x1440">2560×1440</option>
+          <option value="3840x2160">3840×2160</option>
+        </select>
+        <input id="exportW" class="input" type="number" min="16" max="8192" placeholder="宽(px)" title="自定义宽度（留空则用预设）" aria-label="自定义导出宽度" style="max-width:92px">
+        <input id="exportH" class="input" type="number" min="16" max="8192" placeholder="高(px)" title="自定义高度（留空则用预设）" aria-label="自定义导出高度" style="max-width:92px">
+        <select id="exportScale" class="select" title="倍率" aria-label="导出倍率">
+          <option value="1" selected>1x</option>
+          <option value="2">2x</option>
+          <option value="4">4x</option>
+        </select>
+        <label class="chip" title="PNG 透明背景">
+          <input id="exportTransparent" type="checkbox" aria-label="PNG 透明背景" style="appearance:none;margin-right:6px;width:12px;height:12px;border-radius:2px;border:1px solid var(--border);vertical-align:-1px;">
+          透明
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button id="exportBtn" class="btn primary" title="导出当前尺寸位图" aria-label="导出图片">导出</button>
+      <button id="exportTileBtn" class="btn" title="按无缝平铺尺寸导出" aria-label="导出平铺纹理">导出平铺</button>
+    </div>
+  </div>
+
+<script>
+/*
+  Complex Plaid/Tartan single-file app
+  - Preset library: getTartanPresets/setTartanPresets + buildPresetLibrary
+  - Smart randomization: smartRandomizeTartan('full'|'light') respects locked/visible layers
+  - Export params: exportFormat/exportSize/exportW/exportH/exportScale/exportTransparent
+  - Tiling export: LCM of (thickness + gap) per direction -> tileW/tileH
+  - Accessibility: aria-labels for key controls; decorative elements marked aria-hidden
+*/
+/* ===== Utilities ===== */
+
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const TAU = Math.PI * 2;
+
+function hexToRgb(hex){
+  hex = (hex||'').replace('#','').trim();
+  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+  const num = parseInt(hex||'000000', 16);
+  return { r: (num>>16)&255, g: (num>>8)&255, b: num&255 };
+}
+function rgbToHex(r,g,b){
+  const h = n => ('0'+n.toString(16)).slice(-2);
+  return '#'+h(clamp(r,0,255)|0)+h(clamp(g,0,255)|0)+h(clamp(b,0,255)|0);
+}
+function rgba(hex, a=1){
+  const {r,g,b} = typeof hex === 'string' ? hexToRgb(hex) : hex;
+  return `rgba(${r},${g},${b},${clamp(a,0,1)})`;
+}
+function mixHex(a, b, t){
+  const ca = hexToRgb(a), cb = hexToRgb(b);
+  return rgbToHex(
+    Math.round(lerp(ca.r, cb.r, t)),
+    Math.round(lerp(ca.g, cb.g, t)),
+    Math.round(lerp(ca.b, cb.b, t))
+  );
+}
+function lighten(hex, amt=0.2){ return mixHex(hex, '#ffffff', clamp(amt,0,1)); }
+function darken(hex, amt=0.2){ return mixHex(hex, '#000000', clamp(amt,0,1)); }
+
+/* removed unused seededRng */
+
+function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function rand(min, max){ return Math.random()*(max-min)+min; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+// math helpers for tiling/export
+function gcd(a,b){ a=Math.abs(a|0); b=Math.abs(b|0); while(b){ const t=a%b; a=b; b=t; } return a||1; }
+function lcm(a,b){ if(!a||!b) return Math.max(a,b)||1; return Math.abs((a*b)/gcd(a,b))|0; }
+function lcmArray(arr){ return (arr||[]).reduce((acc,v)=> lcm(acc, v|0), 1); }
+
+const Palettes = {
+  pastel: ['#FFC6D9','#FFE4E1','#BFE0F2','#D7F9F1','#E5FDD1','#FFF1C9','#C7D2FE','#F5D0FE'],
+  sunset: ['#EF476F','#F78C6B','#FFD166','#06D6A0','#118AB2', '#8338EC', '#FB5607'],
+  aurora: ['#00FFA3','#19A5FF','#DC1FFF','#00D1FF','#FFD700','#A3FF74'],
+  ocean: ['#0EA5E9','#22D3EE','#0284C7','#0E7490','#155E75','#34D399'],
+  forest:['#14532D','#16A34A','#84CC16','#F59E0B','#A3E635','#065F46'],
+  candy: ['#F97316','#EF4444','#E879F9','#8B5CF6','#22D3EE','#FDE047','#10B981']
+};
+function randomPalette(size=3){
+  const base = pick(Object.values(Palettes));
+  const copy = base.slice();
+  const out = [];
+  for(let i=0;i<size;i++){
+    if(copy.length===0) break;
+    const c = copy.splice(randInt(0, copy.length-1),1)[0];
+    out.push(c);
+  }
+  return out;
+}
+function withAlpha(hex, alpha){ const {r,g,b}=hexToRgb(hex); return `rgba(${r},${g},${b},${alpha})`; }
+
+function downloadDataURL(dataURL, filename){
+  const a = document.createElement('a');
+  a.href = dataURL; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+function showToast(msg='已完成'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1500);
+}
+
+/* ===== Canvas + Preview ===== */
+const canvas = document.getElementById('preview');
+const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+
+function resizeCanvasToDisplaySize(){
+  const wrap = document.getElementById('previewWrap');
+  const rect = wrap.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+  const width = Math.max(1, Math.floor(rect.width * ratio));
+  const height = Math.max(1, Math.floor(rect.height * ratio));
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width; canvas.height = height;
+  }
+}
+
+/* ===== Styles registry ===== */
+const Styles = {}; // filled below
+
+/* ===== State ===== */
+const state = {
+  styleId: 'tartan',
+  params: {},
+  seed: Math.floor(Math.random()*1e9),
+};
+
+/* ===== Controls builder helpers ===== */
+function ControlsAPI(container){
+  function addField(label, inputEl, hint){
+    const f = document.createElement('div'); f.className='field';
+    const l = document.createElement('label'); l.textContent = label;
+    f.appendChild(l);
+    f.appendChild(inputEl);
+    if(hint){
+      const h = document.createElement('div'); h.className='hint'; h.textContent = hint; f.appendChild(h);
+    }
+    container.appendChild(f);
+    return inputEl;
+  }
+  function group(title){
+    const g = document.createElement('div'); g.className='group';
+    const h4 = document.createElement('h4'); h4.textContent = title; g.appendChild(h4);
+    container.appendChild(g);
+    return ControlsAPI(g);
+  }
+  function row(){
+    const r = document.createElement('div'); r.className='row';
+    container.appendChild(r);
+    return ControlsAPI(r);
+  }
+  function button(text, cls='btn small'){
+    const b = document.createElement('button'); b.className = cls; b.textContent = text;
+    container.appendChild(b); return b;
+  }
+  function color(label, val, onChange, hint){
+    const i = document.createElement('input'); i.type='color'; i.className='color'; i.value = val;
+    i.addEventListener('input', e => onChange(e.target.value));
+    return addField(label, i, hint);
+  }
+  function number(label, val, min, max, step, onChange, hint){
+    const i = document.createElement('input'); i.className='input'; i.type='number';
+    i.value = val; i.min = min; i.max = max; i.step = step || 1;
+    i.addEventListener('input', e => onChange(parseFloat(e.target.value)));
+    return addField(label, i, hint);
+  }
+  function range(label, val, min, max, step, onChange, hint){
+    const wrap = document.createElement('div'); wrap.className='inline'; const i = document.createElement('input'); i.type='range';
+    i.value = val; i.min=min; i.max=max; i.step=step||1;
+    const v = document.createElement('span'); v.className='value'; v.textContent = val;
+    i.addEventListener('input', e => { v.textContent = e.target.value; onChange(parseFloat(e.target.value)); });
+    wrap.appendChild(i); wrap.appendChild(v);
+    return addField(label, wrap, hint);
+  }
+  function select(label, val, options, onChange, hint){
+    const s = document.createElement('select'); s.className='select';
+    options.forEach(([value, text]) => {
+      const opt = document.createElement('option'); opt.value = value; opt.textContent = text; s.appendChild(opt);
+    });
+    s.value = val;
+    s.addEventListener('input', e => onChange(e.target.value));
+    return addField(label, s, hint);
+  }
+  function checkbox(label, checked, onChange, hint){
+    const w = document.createElement('div'); w.className='inline';
+    const i = document.createElement('input'); i.type='checkbox'; i.checked = checked; i.style.marginRight='6px';
+    i.addEventListener('input', e => onChange(!!e.target.checked));
+    w.appendChild(i);
+    return addField(label, w, hint);
+  }
+  function chips(label, value, options, onChange, hint){
+    const w = document.createElement('div'); const wrap = document.createElement('div'); wrap.style.display='flex'; wrap.style.flexWrap='wrap'; wrap.style.gap='8px';
+    options.forEach(([val, text])=>{
+      const c = document.createElement('button'); c.type='button'; c.className='chip'; c.textContent = text;
+      if(val===value) c.classList.add('active');
+      c.addEventListener('click', ()=>{ [...wrap.children].forEach(x=>x.classList.remove('active')); c.classList.add('active'); onChange(val); });
+      wrap.appendChild(c);
+    });
+    w.appendChild(wrap);
+    return addField(label, w, hint);
+  }
+  function custom(el){ container.appendChild(el); return el; }
+  return { addField, group, row, button, color, number, range, select, checkbox, chips, custom };
+}
+
+/* removed unused noise overlay helpers */
+
+
+
+
+
+/* ===== STYLE: Complex Plaid/Tartan ===== */
+Styles.tartan = {
+  id: 'tartan',
+  name: '复杂格纹',
+  defaults(){
+    return {
+      background: '#f7f7f9',
+      blend: 'multiply', // multiply | normal
+      layers: [
+        { name: '主层', visible: true, locked: false, color: '#0ea5e9', thickness: 12, gap: 28, opacity: 0.18, orientation: 'both', offset: 0 },
+        { name: '竖线', visible: true, locked: false, color: '#8b5cf6', thickness: 6, gap: 16, opacity: 0.20, orientation: 'vertical', offset: 8 },
+        { name: '横线', visible: true, locked: false, color: '#ef4444', thickness: 6, gap: 16, opacity: 0.10, orientation: 'horizontal', offset: 4 }
+      ]
+    };
+  },
+  randomize(){
+    const pal = randomPalette(randInt(2,4));
+    const layers = pal.map((c,i)=>{
+      const orientation = pick(['vertical','horizontal','both']);
+      const name = orientation==='vertical' ? `竖向 #${i+1}` : (orientation==='horizontal' ? `横向 #${i+1}` : `双向 #${i+1}`);
+      return {
+        name,
+        visible: true,
+        locked: false,
+        color: c,
+        thickness: randInt(4, 18),
+        gap: randInt(14, 40),
+        opacity: rand(.08, .24),
+        orientation,
+        offset: randInt(0, 16)
+      };
+    });
+    return {
+      background: lighten(pal[0], .85),
+      blend: Math.random()>.4 ? 'multiply' : 'normal',
+      layers
+    };
+  },
+  controls(container, params, onChange){
+    const ui = ControlsAPI(container);
+    ui.color('背景色', params.background, v=>onChange({background:v}));
+    ui.select('混合模式', params.blend, [['multiply','叠加加深'], ['normal','普通']], v=>onChange({blend:v}));
+    const LG = ui.group('颜色层（可见/锁定/拖拽/复制/删除）');
+    const list = document.createElement('div'); list.className='layers';
+    function render(){
+      list.innerHTML='';
+      params.layers.forEach((L, idx)=>{
+        const el = document.createElement('div'); el.className='layer'; el.draggable = !L.locked; el.dataset.index = String(idx);
+
+        // DnD
+        el.addEventListener('dragstart', ev => {
+          if(L.locked){ ev.preventDefault(); return; }
+          ev.dataTransfer.setData('text/plain', String(idx));
+          ev.dataTransfer.effectAllowed = 'move';
+          el.classList.add('dragging');
+        });
+        el.addEventListener('dragover', ev => {
+          ev.preventDefault();
+          ev.dataTransfer.dropEffect = 'move';
+          el.style.outline = '1px dashed var(--primary)';
+        });
+        el.addEventListener('dragleave', () => { el.style.outline = ''; });
+        el.addEventListener('drop', ev => {
+          ev.preventDefault();
+          el.style.outline = '';
+          const from = parseInt(ev.dataTransfer.getData('text/plain')||'-1',10);
+          const to = idx;
+          if(isNaN(from) || from===to) return;
+          const layers = params.layers.slice();
+          const [it] = layers.splice(from,1);
+          layers.splice(to,0,it);
+          onChange({layers});
+        });
+        el.addEventListener('dragend', () => { el.classList.remove('dragging'); });
+
+        const hdr = document.createElement('div'); hdr.className='layer-header';
+
+        const titleWrap = document.createElement('div');
+        titleWrap.style.display='flex'; titleWrap.style.alignItems='center'; titleWrap.style.gap='8px';
+        const title = document.createElement('div'); title.className='layer-title';
+        title.textContent = (L.name || `图层 #${idx+1}`) + (L.locked ? ' 🔒' : '');
+        const nameInput = document.createElement('input'); nameInput.type='text'; nameInput.className='input';
+        nameInput.style.maxWidth='160px'; nameInput.placeholder='图层名称';
+        nameInput.value = L.name || `图层 #${idx+1}`;
+        nameInput.addEventListener('change', ()=>{
+          const layers=params.layers.slice(); layers[idx]={...L, name: nameInput.value}; onChange({layers});
+        });
+        if(L.locked){ nameInput.disabled = true; }
+        titleWrap.appendChild(title); titleWrap.appendChild(nameInput);
+
+        const actions = document.createElement('div'); actions.className='layer-actions';
+
+        const vis = document.createElement('button'); vis.className='btn small'; vis.title='显示/隐藏'; vis.textContent = (L.visible===false) ? '🙈' : '👁';
+        vis.addEventListener('click', ()=>{
+          const layers=params.layers.slice(); layers[idx]={...L, visible: !(L.visible===false)}; onChange({layers});
+        });
+
+        const lock = document.createElement('button'); lock.className='btn small'; lock.title='锁定/解锁'; lock.textContent = L.locked ? '🔒' : '🔓';
+        lock.addEventListener('click', ()=>{
+          const layers=params.layers.slice(); layers[idx]={...L, locked: !L.locked}; onChange({layers});
+        });
+
+        const copy = document.createElement('button'); copy.className='btn small'; copy.title='复制图层'; copy.textContent='复制';
+        copy.addEventListener('click', ()=>{
+          const layers=params.layers.slice();
+          const dup = { ...L, locked:false, name: (L.name ? L.name+' 副本' : `图层 #${idx+1} 副本`) };
+          layers.splice(idx+1, 0, dup);
+          onChange({layers});
+        });
+
+        const up = document.createElement('button'); up.className='btn small'; up.textContent='↑'; up.title='上移';
+        up.addEventListener('click', ()=>{
+          if(idx===0) return;
+          const layers = params.layers.slice();
+          const [it] = layers.splice(idx,1); layers.splice(idx-1,0,it);
+          onChange({layers});
+        });
+        const down = document.createElement('button'); down.className='btn small'; down.textContent='↓'; down.title='下移';
+        down.addEventListener('click', ()=>{
+          if(idx===params.layers.length-1) return;
+          const layers = params.layers.slice();
+          const [it] = layers.splice(idx,1); layers.splice(idx+1,0,it);
+          onChange({layers});
+        });
+        const del = document.createElement('button'); del.className='btn small'; del.textContent='删'; del.title='删除';
+        del.addEventListener('click', ()=>{
+          const layers = params.layers.slice(); layers.splice(idx,1); onChange({layers});
+        });
+
+        if(L.locked){ up.disabled = true; down.disabled = true; del.disabled = true; }
+
+        const collapse = document.createElement('button'); collapse.className='btn small'; collapse.title='收起/展开'; collapse.textContent = (L.uiCollapsed===true) ? '▸' : '▾';
+        collapse.addEventListener('click', ()=>{
+          const layers=params.layers.slice(); layers[idx]={...L, uiCollapsed: !(L.uiCollapsed===true)}; onChange({layers});
+        });
+        actions.appendChild(collapse);
+        actions.appendChild(vis); actions.appendChild(lock); actions.appendChild(copy);
+        actions.appendChild(up); actions.appendChild(down); actions.appendChild(del);
+
+        hdr.appendChild(titleWrap); hdr.appendChild(actions);
+        el.appendChild(hdr);
+
+        let r1, r2, r3;
+        if(!(L.uiCollapsed===true)){
+          r1 = document.createElement('div'); r1.className='row';
+          ControlsAPI(r1).color('颜色', L.color, v=>{ const layers=params.layers.slice(); layers[idx]={...L,color:v}; onChange({layers}); });
+          ControlsAPI(r1).select('方向', L.orientation, [['vertical','竖向'],['horizontal','横向'],['both','双向']],
+            v=>{ const layers=params.layers.slice(); layers[idx]={...L,orientation:v}; onChange({layers}); });
+          el.appendChild(r1);
+          r2 = document.createElement('div'); r2.className='row';
+          ControlsAPI(r2).range('线宽', L.thickness, 1, 60, 1, v=>{ const layers=params.layers.slice(); layers[idx]={...L,thickness:v}; onChange({layers}); });
+          ControlsAPI(r2).range('间距', L.gap, 2, 120, 1, v=>{ const layers=params.layers.slice(); layers[idx]={...L,gap:v}; onChange({layers}); });
+          el.appendChild(r2);
+          r3 = document.createElement('div'); r3.className='row';
+          ControlsAPI(r3).range('透明度', L.opacity, 0, 1, 0.01, v=>{ const layers=params.layers.slice(); layers[idx]={...L,opacity:v}; onChange({layers}); });
+          ControlsAPI(r3).range('偏移', L.offset, 0, Math.max(2, (L.gap|0) + (L.thickness|0)), 1, v=>{ const layers=params.layers.slice(); layers[idx]={...L,offset:v}; onChange({layers}); });
+          el.appendChild(r3);
+        
+          if(L.locked){
+            [r1,r2,r3].forEach(r=>{ r.style.opacity='.6'; r.style.pointerEvents='none'; });
+          }
+        }
+        
+        list.appendChild(el);
+      });
+    }
+    render();
+    LG.custom(list);
+    const addBtn = LG.button('添加图层 +', 'btn small');
+    addBtn.addEventListener('click', ()=>{
+      const layers = params.layers.slice();
+      const baseColor = (layers[layers.length-1]?.color) || '#0ea5e9';
+      layers.push({ name: `图层 ${layers.length+1}`, visible: true, locked: false, color: lighten(baseColor, .15), thickness: 8, gap: 24, opacity: 0.18, orientation: 'both', offset: 0 });
+      onChange({layers});
+    });
+  },
+  draw(ctx, W, H, p){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = p.background || '#fff';
+    ctx.fillRect(0,0,W,H);
+    const prev = ctx.globalCompositeOperation;
+    ctx.globalCompositeOperation = p.blend==='multiply' ? 'multiply' : 'source-over';
+
+    for(const L of p.layers){
+      if(L && L.visible === false) continue;
+      const color = withAlpha(L.color, clamp(L.opacity,0,1));
+      // vertical
+      if(L.orientation==='vertical' || L.orientation==='both'){
+        const step = Math.max(1, (L.thickness|0) + (L.gap|0));
+        for(let x = (L.offset|0)%step; x < W; x += step){
+          ctx.fillStyle = color;
+          ctx.fillRect(x, 0, L.thickness|0, H);
+        }
+      }
+      // horizontal
+      if(L.orientation==='horizontal' || L.orientation==='both'){
+        const step = Math.max(1, (L.thickness|0) + (L.gap|0));
+        for(let y = (L.offset|0)%step; y < H; y += step){
+          ctx.fillStyle = color;
+          ctx.fillRect(0, y, W, L.thickness|0);
+        }
+      }
+    }
+    ctx.globalCompositeOperation = prev;
+  }
+};
+
+/* ===== Tartan Presets (defaults + user) ===== */
+const TARTAN_PRESETS_DEFAULT = [
+  {
+    name: '经典学院',
+    params: {
+      background: '#f7f7f9',
+      blend: 'multiply',
+      layers: [
+        { color: '#0ea5e9', thickness: 12, gap: 28, opacity: 0.18, orientation: 'both', offset: 0 },
+        { color: '#8b5cf6', thickness: 6, gap: 16, opacity: 0.20, orientation: 'vertical', offset: 8 },
+        { color: '#ef4444', thickness: 6, gap: 16, opacity: 0.12, orientation: 'horizontal', offset: 4 }
+      ]
+    }
+  },
+  {
+    name: '柔光蓝紫',
+    params: {
+      background: '#eef2ff',
+      blend: 'multiply',
+      layers: [
+        { color: '#93c5fd', thickness: 10, gap: 26, opacity: 0.18, orientation: 'both', offset: 0 },
+        { color: '#c4b5fd', thickness: 8, gap: 20, opacity: 0.20, orientation: 'vertical', offset: 6 },
+        { color: '#a7f3d0', thickness: 4, gap: 18, opacity: 0.14, orientation: 'horizontal', offset: 4 }
+      ]
+    }
+  },
+  {
+    name: '暖阳橙调',
+    params: {
+      background: '#fff7ed',
+      blend: 'multiply',
+      layers: [
+        { color: '#f59e0b', thickness: 12, gap: 30, opacity: 0.20, orientation: 'both', offset: 0 },
+        { color: '#fb923c', thickness: 6, gap: 16, opacity: 0.22, orientation: 'vertical', offset: 8 },
+        { color: '#ef4444', thickness: 4, gap: 14, opacity: 0.16, orientation: 'horizontal', offset: 5 }
+      ]
+    }
+  },
+  {
+    name: '海洋冷调',
+    params: {
+      background: '#ecfeff',
+      blend: 'multiply',
+      layers: [
+        { color: '#0ea5e9', thickness: 10, gap: 26, opacity: 0.20, orientation: 'both', offset: 0 },
+        { color: '#22d3ee', thickness: 6, gap: 14, opacity: 0.18, orientation: 'vertical', offset: 7 },
+        { color: '#0284c7', thickness: 6, gap: 20, opacity: 0.16, orientation: 'horizontal', offset: 6 }
+      ]
+    }
+  },
+  {
+    name: '深色夜拍',
+    params: {
+      background: '#0f172a',
+      blend: 'normal',
+      layers: [
+        { color: '#64748b', thickness: 14, gap: 32, opacity: 0.22, orientation: 'both', offset: 2 },
+        { color: '#94a3b8', thickness: 6, gap: 18, opacity: 0.20, orientation: 'vertical', offset: 9 },
+        { color: '#334155', thickness: 8, gap: 24, opacity: 0.18, orientation: 'horizontal', offset: 5 }
+      ]
+    }
+  },
+  {
+    name: '低饱和中性',
+    params: {
+      background: '#f3f4f6',
+      blend: 'multiply',
+      layers: [
+        { color: '#d1d5db', thickness: 12, gap: 28, opacity: 0.18, orientation: 'both', offset: 0 },
+        { color: '#9ca3af', thickness: 6, gap: 16, opacity: 0.18, orientation: 'vertical', offset: 8 },
+        { color: '#6b7280', thickness: 4, gap: 14, opacity: 0.16, orientation: 'horizontal', offset: 4 }
+      ]
+    }
+  },
+  {
+    name: '活力糖果',
+    params: {
+      background: '#fff1f2',
+      blend: 'multiply',
+      layers: [
+        { color: '#ef4444', thickness: 10, gap: 22, opacity: 0.18, orientation: 'both', offset: 0 },
+        { color: '#e879f9', thickness: 8, gap: 18, opacity: 0.22, orientation: 'vertical', offset: 6 },
+        { color: '#8b5cf6', thickness: 6, gap: 16, opacity: 0.20, orientation: 'horizontal', offset: 5 }
+      ]
+    }
+  },
+  {
+    name: '复古森林',
+    params: {
+      background: '#f1f5f9',
+      blend: 'multiply',
+      layers: [
+        { color: '#14532d', thickness: 12, gap: 30, opacity: 0.20, orientation: 'both', offset: 0 },
+        { color: '#16a34a', thickness: 6, gap: 16, opacity: 0.18, orientation: 'vertical', offset: 7 },
+        { color: '#84cc16', thickness: 4, gap: 14, opacity: 0.16, orientation: 'horizontal', offset: 4 }
+      ]
+    }
+  }
+];
+
+function getTartanPresets(){
+  try{
+    const txt = localStorage.getItem('bg.tartan.presets');
+    if(!txt) return TARTAN_PRESETS_DEFAULT.slice();
+    const parsed = JSON.parse(txt);
+    if(!Array.isArray(parsed) || parsed.length===0) return TARTAN_PRESETS_DEFAULT.slice();
+    return parsed.filter(p => p && p.params && Array.isArray(p.params.layers));
+  } catch(e){
+    return TARTAN_PRESETS_DEFAULT.slice();
+  }
+}
+function setTartanPresets(presets){
+  localStorage.setItem('bg.tartan.presets', JSON.stringify(presets));
+}
+function presetSwatchStyle(params){
+  const layers = (params && Array.isArray(params.layers)) ? params.layers : [];
+  const colors = Array.from(new Set(layers.map(l => l.color))).filter(Boolean).slice(0,5);
+  if(colors.length===0) return 'linear-gradient(90deg, #999 0% 100%)';
+  const step = 100 / colors.length;
+  const stops = colors.map((c,i)=>`${c} ${Math.round(i*step)}% ${Math.round((i+1)*step)}%`).join(', ');
+  return `linear-gradient(90deg, ${stops})`;
+}
+function buildPresetLibrary(){
+  const root = document.getElementById('styleTabs');
+  if(!root) return;
+  root.innerHTML = '';
+
+  const toolbar = document.getElementById('presetsToolbar');
+  const saveBtn = document.createElement('button');
+  saveBtn.id = 'savePresetBtn';
+  saveBtn.className = 'btn small ghost';
+  saveBtn.textContent = '保存为预设';
+  const restoreBtn = document.createElement('button');
+  restoreBtn.id = 'restorePresetBtn';
+  restoreBtn.className = 'btn small';
+  restoreBtn.textContent = '恢复内置预设';
+  if(toolbar){
+    toolbar.innerHTML = '';
+    toolbar.appendChild(saveBtn);
+    toolbar.appendChild(restoreBtn);
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'style-tabs';
+  root.appendChild(grid);
+
+  const presets = getTartanPresets();
+  const style = Styles.tartan;
+
+  presets.forEach((p, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tab';
+    btn.title = p.name || `预设 #${idx+1}`;
+
+    const swatch = document.createElement('div');
+    swatch.style.width = '48px';
+    swatch.style.height = '28px';
+    swatch.style.borderRadius = '8px';
+    swatch.style.border = '1px solid var(--border)';
+    swatch.style.background = presetSwatchStyle(p.params || {});
+    const label = document.createElement('div');
+    label.textContent = p.name || `预设 #${idx+1}`;
+    label.style.fontWeight = '800';
+    label.style.fontSize = '12px';
+    label.style.color = 'var(--muted)';
+
+    btn.appendChild(swatch);
+    btn.appendChild(label);
+
+    btn.addEventListener('click', ()=>{
+      state.params = JSON.parse(JSON.stringify(p.params || style.defaults()));
+      buildControlsForStyle();
+      redraw();
+      showToast(`已应用预设：${p.name || ('#'+(idx+1))}`);
+    });
+    grid.appendChild(btn);
+  });
+
+  saveBtn.addEventListener('click', saveCurrentAsPreset);
+  restoreBtn.addEventListener('click', restoreBuiltinPresets);
+}
+function saveCurrentAsPreset(){
+  const name = prompt('为预设命名', '自定义预设');
+  if(!name) return;
+  const presets = getTartanPresets();
+  const payload = { name, params: JSON.parse(JSON.stringify(state.params || Styles.tartan.defaults())) };
+  presets.unshift(payload);
+  const max = 24;
+  if(presets.length > max) presets.length = max;
+  setTartanPresets(presets);
+  buildPresetLibrary();
+  showToast('已保存为预设');
+}
+function restoreBuiltinPresets(){
+  if(!confirm('将恢复内置预设并覆盖自定义预设，是否继续？')) return;
+  setTartanPresets(TARTAN_PRESETS_DEFAULT);
+  buildPresetLibrary();
+  showToast('已恢复内置预设');
+}
+
+
+
+
+/* ===== Style registry list ===== */
+const STYLE_LIST = [
+  Styles.tartan
+];
+
+/* ===== UI wiring ===== */
+function setTheme(theme){
+  document.body.setAttribute('data-theme', theme);
+  localStorage.setItem('bg.theme', theme);
+}
+function initTheme(){
+  const saved = localStorage.getItem('bg.theme');
+  const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  setTheme(saved || (prefersLight ? 'light' : 'dark'));
+}
+
+
+function setStyle(id, keepParams=false){
+  const style = STYLE_LIST.find(s=>s.id===id) || STYLE_LIST[0];
+  state.styleId = style.id;
+  if(!keepParams || !state.params || Object.keys(state.params).length===0){
+    state.params = style.defaults();
+  }
+  buildControlsForStyle();
+  redraw();
+}
+
+function buildControlsForStyle(){
+  const c = document.getElementById('controls');
+  c.innerHTML = '';
+  const style = STYLE_LIST.find(s=>s.id===state.styleId);
+  function onChange(patch){
+    state.params = { ...state.params, ...patch };
+    // when array field changed (colors/layers), rebuild controls if necessary
+    c.innerHTML = '';
+    style.controls(c, state.params, onChange);
+    redraw();
+  }
+  style.controls(c, state.params, onChange);
+}
+
+function redraw(){
+  resizeCanvasToDisplaySize();
+  const W = canvas.width, H = canvas.height;
+  const style = STYLE_LIST.find(s=>s.id===state.styleId);
+  style.draw(ctx, W, H, state.params);
+}
+
+// Smart randomization for Tartan: respects locked/visible, two modes ('full' and 'light')
+function smartRandomizeTartan(mode='full'){
+  const def = Styles.tartan.defaults();
+  const base = state.params && state.styleId==='tartan' ? state.params : def;
+  const p = JSON.parse(JSON.stringify(base));
+  const layersArr = Array.isArray(p.layers) ? p.layers : [];
+  const unlocked = layersArr.filter(L => !(L && L.locked));
+  const pal = randomPalette(Math.max(2, Math.min(5, unlocked.length || 3)));
+  // background and blend
+  if(mode==='full'){
+    const baseCol = pal[0] || '#0ea5e9';
+    p.background = lighten(baseCol, .85);
+    p.blend = Math.random()>.4 ? 'multiply' : 'normal';
+  } else {
+    const amt = Math.random()*0.08 - 0.04; // -0.04..0.04
+    p.background = amt>=0 ? lighten(p.background || def.background, amt) : darken(p.background || def.background, -amt);
+  }
+  // mutate layers
+  let ci = 0;
+  p.layers = layersArr.map(L => {
+    if(L && L.locked) return L;
+    const o = L.orientation;
+    if(mode==='full'){
+      const c = pal[ci++ % pal.length] || L.color;
+      const thickness = randInt(4,18)|0;
+      const gap = randInt(14,40)|0;
+      const opacity = clamp(rand(.08,.24),0,1);
+      const offset = clamp(randInt(0,16)|0, 0, Math.max(2, gap + thickness));
+      return { ...L, color: c, thickness, gap, opacity, orientation: o, offset };
+    } else {
+      const thickness = clamp((L.thickness|0) + randInt(-3,3), 1, 60)|0;
+      const gap = clamp((L.gap|0) + randInt(-5,5), 2, 120)|0;
+      const opacity = clamp((L.opacity ?? 0.18) + rand(-.05,.05), 0, 1);
+      const shift = Math.random()*0.2 - 0.1;
+      const color = shift>=0 ? lighten(L.color, shift) : darken(L.color, -shift);
+      const offset = clamp((L.offset|0) + randInt(-4,4), 0, Math.max(2, gap + thickness))|0;
+      return { ...L, color, thickness, gap, opacity, orientation: o, offset };
+    }
+  });
+  return p;
+}
+function randomizeTartanFull(){
+  state.seed = Math.floor(Math.random()*1e9);
+  const p = smartRandomizeTartan('full');
+  state.params = p;
+  buildControlsForStyle();
+  redraw();
+}
+function randomizeTartanLight(){
+  state.seed = Math.floor(Math.random()*1e9);
+  const p = smartRandomizeTartan('light');
+  state.params = p;
+  buildControlsForStyle();
+  redraw();
+}
+
+
+function randomizeAll(){
+  if(state.styleId !== 'tartan'){ setStyle('tartan', true); }
+  randomizeTartanFull();
+}
+
+/* ===== Export ===== */
+function parseSize(s){
+  const m = String(s).match(/^(\d+)x(\d+)$/i);
+  if(!m) return [1920,1080];
+  return [parseInt(m[1],10), parseInt(m[2],10)];
+}
+function exportImage(){
+  const fmt = document.getElementById('exportFormat').value;
+  const [W, H] = computeFinalSize();
+  const transparent = (fmt==='png') && !!(document.getElementById('exportTransparent') && document.getElementById('exportTransparent').checked);
+  const style = STYLE_LIST.find(s=>s.id===state.styleId);
+  // render offscreen
+  const off = document.createElement('canvas'); off.width = W; off.height = H;
+  const x = off.getContext('2d', { alpha: true });
+  const params = JSON.parse(JSON.stringify(state.params||{}));
+  if(transparent){ params.background = 'rgba(0,0,0,0)'; }
+  style.draw(x, W, H, params);
+  const quality = fmt==='jpeg' ? 0.92 : undefined;
+  const url = off.toDataURL(`image/${fmt}`, quality);
+  const name = `${style.id}-${W}x${H}${transparent?'-alpha':''}.${fmt==='jpeg'?'jpg':'png'}`;
+  downloadDataURL(url, name);
+}
+
+function exportTileImage(){
+  // compute tile size based on LCM of steps
+  const fmt = document.getElementById('exportFormat').value;
+  const transparent = (fmt==='png') && !!(document.getElementById('exportTransparent') && document.getElementById('exportTransparent').checked);
+  const [baseW, baseH] = computeExportSize();
+  const scaleSel = document.getElementById('exportScale');
+  const S = scaleSel ? Math.max(1, parseInt(scaleSel.value,10)||1) : 1;
+
+  const style = STYLE_LIST.find(s=>s.id===state.styleId);
+  const p = JSON.parse(JSON.stringify(state.params||{}));
+  const layers = Array.isArray(p.layers) ? p.layers : [];
+  const stepsX = layers.filter(L=>L && (L.orientation==='vertical' || L.orientation==='both')).map(L=> (L.thickness|0) + (L.gap|0)).filter(n=>n>0);
+  const stepsY = layers.filter(L=>L && (L.orientation==='horizontal' || L.orientation==='both')).map(L=> (L.thickness|0) + (L.gap|0)).filter(n=>n>0);
+  let tileW = stepsX.length? lcmArray(stepsX) : baseW;
+  let tileH = stepsY.length? lcmArray(stepsY) : baseH;
+  // safety limits
+  tileW = clamp(tileW, 32, 4096);
+  tileH = clamp(tileH, 32, 4096);
+  const W = clamp(tileW * S, 32, 8192);
+  const H = clamp(tileH * S, 32, 8192);
+
+  const off = document.createElement('canvas'); off.width = W; off.height = H;
+  const x = off.getContext('2d', { alpha: true });
+  if(transparent){ p.background = 'rgba(0,0,0,0)'; }
+  style.draw(x, W, H, p);
+  const quality = fmt==='jpeg' ? 0.92 : undefined;
+  const url = off.toDataURL(`image/${fmt}`, quality);
+  const name = `${style.id}-tile-${tileW}x${tileH}${S>1?`@${S}x`:''}${transparent?'-alpha':''}.${fmt==='jpeg'?'jpg':'png'}`;
+  downloadDataURL(url, name);
+  showToast('已导出平铺纹理');
+}
+
+/* ===== Params copy/paste ===== */
+function copyParams(){
+  const payload = {
+    style: state.styleId,
+    seed: state.seed,
+    params: state.params
+  };
+  navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(()=>{
+    showToast('配置已复制');
+  }).catch(()=> showToast('复制失败'));
+}
+function normalizeTartanParams(input){
+  const def = Styles.tartan.defaults();
+  const out = { background: def.background, blend: def.blend, layers: [] };
+  if(input && typeof input.background==='string') out.background = input.background;
+  if(input && (input.blend==='multiply' || input.blend==='normal')) out.blend = input.blend;
+  if(input && Array.isArray(input.layers) && input.layers.length){
+    out.layers = input.layers.map((L,i)=>{
+      const base = def.layers[i % def.layers.length];
+      const name = typeof L.name==='string' ? L.name : undefined;
+      const visible = (L.visible===false) ? false : true;
+      const locked = !!L.locked;
+      const color = L.color || base.color;
+      const thickness = clamp(parseInt(L.thickness,10)||base.thickness, 1, 120);
+      const gap = clamp(parseInt(L.gap,10)||base.gap, 1, 240);
+      const op = parseFloat(L.opacity);
+      const opacity = Number.isFinite(op) ? clamp(op,0,1) : base.opacity;
+      const orientation = (['vertical','horizontal','both'].includes(L.orientation)) ? L.orientation : 'both';
+      const offset = clamp(parseInt(L.offset,10)||0, 0, Math.max(2, gap + thickness));
+      return { name, visible, locked, color, thickness, gap, opacity, orientation, offset };
+    });
+  } else if (input && Array.isArray(input.colors) && input.colors.length){
+    out.layers = input.colors.slice(0,5).map((c, i)=>({
+      name: `颜色层 #${i+1}`,
+      visible: true,
+      locked: false,
+      color: c,
+      thickness: 6 + (i%3)*2,
+      gap: 16 + (i%3)*6,
+      opacity: 0.18,
+      orientation: ['vertical','horizontal','both'][i%3],
+      offset: (i*4) % 16
+    }));
+  } else {
+    out.layers = def.layers.slice();
+  }
+  if(!out.layers.length) out.layers = def.layers.slice();
+  return out;
+}
+function pasteParams(){
+  navigator.clipboard.readText().then(txt=>{
+    try{
+      const data = JSON.parse(txt);
+      const raw = (data && data.params) ? data.params : data;
+      if(!raw) throw new Error('bad');
+      state.seed = (data && data.seed) || Math.floor(Math.random()*1e9);
+      const normalized = normalizeTartanParams(raw);
+      setStyle('tartan', true);
+      state.params = normalized;
+      buildControlsForStyle();
+      redraw();
+      showToast('已应用配置（已转换为复杂格纹）');
+    } catch(e){
+      showToast('粘贴失败：格式不正确');
+    }
+  }).catch(()=> showToast('读取剪贴板失败'));
+}
+
+
+/* ===== Quick helpers ===== */
+function computeExportSize(){
+  const selEl = document.getElementById('exportSize');
+  const sel = selEl ? selEl.value : '1920x1080';
+  let [W,H] = parseSize(sel);
+  const wEl = document.getElementById('exportW');
+  const hEl = document.getElementById('exportH');
+  const w = parseInt(wEl && wEl.value, 10);
+  const h = parseInt(hEl && hEl.value, 10);
+  if(Number.isFinite(w) && w>0 && Number.isFinite(h) && h>0){
+    W = clamp(w, 16, 8192);
+    H = clamp(h, 16, 8192);
+  }
+  return [W,H];
+}
+function computeFinalSize(){
+  const [W0,H0] = computeExportSize();
+  const scaleSel = document.getElementById('exportScale');
+  const S = scaleSel ? Math.max(1, parseInt(scaleSel.value,10)||1) : 1;
+  const W = clamp(Math.floor(W0*S),1,16384);
+  const H = clamp(Math.floor(H0*S),1,16384);
+  return [W,H,S];
+}
+function updateMetaBadge(){
+  const fmt = document.getElementById('exportFormat').value;
+  const [W,H,S] = computeFinalSize();
+  const scaleStr = S>1 ? ` · ${S}x` : '';
+  const badge = document.getElementById('metaBadge');
+  if (badge) badge.textContent = `${W}×${H}${scaleStr} · ${fmt.toUpperCase()}`;
+
+  // 同步“透明”可用性：仅在 PNG 时可勾选；JPG 自动禁用并取消勾选
+  const tEl = document.getElementById('exportTransparent');
+  const tLabel = tEl ? tEl.closest('label') : null;
+  const enable = fmt === 'png';
+  if (tEl) {
+    tEl.disabled = !enable;
+    if (!enable) tEl.checked = false;
+  }
+  if (tLabel) {
+    tLabel.setAttribute('aria-disabled', String(!enable));
+    tLabel.title = enable ? 'PNG 透明背景' : '仅 PNG 支持透明';
+  }
+}
+
+/* ===== Sticky offset (header-aware) ===== */
+function updateStickyOffset(){
+  const hdr = document.querySelector('header.app-header');
+  const h = hdr ? hdr.offsetHeight : 64;
+  const top = Math.max(48, h + 24); // header height + breathing space
+  document.documentElement.style.setProperty('--sticky-top', top + 'px');
+}
+/* ===== Sidebar & Splitter ===== */
+function clampSidebarWidth(px){
+  return clamp(parseInt(px,10)||420, 320, 520);
+}
+function applySidebarWidth(px){
+  const v = clampSidebarWidth(px);
+  document.documentElement.style.setProperty('--sidebar-width', v+'px');
+}
+function readSidebarWidth(){
+  const v = parseInt(localStorage.getItem('bg.sidebarWidth'), 10);
+  return Number.isFinite(v) ? clampSidebarWidth(v) : 420;
+}
+function setupSplitter(){
+  const splitter = document.getElementById('splitter');
+  if(!splitter) return;
+  let dragging = false;
+  const onMove = (ev) => {
+    if(!dragging) return;
+    const main = document.querySelector('.main');
+    const rect = main.getBoundingClientRect();
+    const x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    const newW = clampSidebarWidth(x - rect.left);
+    applySidebarWidth(newW);
+    localStorage.setItem('bg.sidebarWidth', String(newW));
+    splitter.classList.add('active');
+    requestAnimationFrame(()=> redraw());
+  };
+  const onUp = () => {
+    if(!dragging) return;
+    dragging = false;
+    splitter.classList.remove('active');
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+    window.removeEventListener('touchmove', onMove);
+    window.removeEventListener('touchend', onUp);
+  };
+  const onDown = (ev) => {
+    dragging = true;
+    ev.preventDefault();
+    splitter.classList.add('active');
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onUp);
+  };
+  splitter.addEventListener('mousedown', onDown);
+  splitter.addEventListener('touchstart', onDown, { passive: false });
+}
+function initSidebar(){
+  applySidebarWidth(readSidebarWidth());
+  document.body.classList.remove('sidebar-collapsed');
+  try { localStorage.removeItem('bg.sidebarCollapsed'); } catch (e) {}
+  setupSplitter();
+}
+
+/* ===== Fullscreen Preview ===== */
+function togglePreviewFullscreen(flag){
+  const enable = (typeof flag === 'boolean') ? flag : !document.body.classList.contains('preview-fullscreen');
+  document.body.classList.toggle('preview-fullscreen', enable);
+  requestAnimationFrame(()=> redraw());
+}
+
+/* ===== Export Modal ===== */
+function openExportModal(){
+  const modal = document.getElementById('exportModal');
+  const overlay = document.getElementById('exportModalOverlay');
+  if(modal) modal.hidden = false;
+  if(overlay) overlay.hidden = false;
+  document.body.classList.add('modal-open');
+  const first = document.getElementById('exportFormat'); if(first) first.focus();
+}
+function closeExportModal(){
+  const modal = document.getElementById('exportModal');
+  const overlay = document.getElementById('exportModalOverlay');
+  if(modal) modal.hidden = true;
+  if(overlay) overlay.hidden = true;
+  document.body.classList.remove('modal-open');
+}
+
+/* ===== Init ===== */
+function init(){
+  initTheme();
+  updateStickyOffset();
+  // buildStyleTabs(); // removed: using preset library in later milestone
+  setStyle('tartan');
+  buildPresetLibrary();
+  initSidebar();
+  redraw();
+  updateMetaBadge();
+
+  document.getElementById('randomBtn').addEventListener('click', randomizeAll);
+  document.getElementById('quickRandom').addEventListener('click', ()=>{
+    randomizeTartanLight();
+  });
+  const _fsBtn = document.getElementById('toggleFullscreenBtn'); if(_fsBtn) _fsBtn.addEventListener('click', ()=> togglePreviewFullscreen());
+  document.getElementById('exportBtn').addEventListener('click', exportImage);
+  const _tileBtn = document.getElementById('exportTileBtn'); if(_tileBtn) _tileBtn.addEventListener('click', exportTileImage);
+  const _openExport = document.getElementById('openExportModalBtn'); if(_openExport) _openExport.addEventListener('click', openExportModal);
+  const _closeExport = document.getElementById('closeExportModalBtn'); if(_closeExport) _closeExport.addEventListener('click', closeExportModal);
+  const _overlayExport = document.getElementById('exportModalOverlay'); if(_overlayExport) _overlayExport.addEventListener('click', closeExportModal);
+  document.getElementById('exportFormat').addEventListener('input', updateMetaBadge);
+  document.getElementById('exportSize').addEventListener('input', updateMetaBadge);
+  const _wEl = document.getElementById('exportW'); if(_wEl) _wEl.addEventListener('input', updateMetaBadge);
+  const _hEl = document.getElementById('exportH'); if(_hEl) _hEl.addEventListener('input', updateMetaBadge);
+  const _sEl = document.getElementById('exportScale'); if(_sEl) _sEl.addEventListener('input', updateMetaBadge);
+  const _tEl = document.getElementById('exportTransparent'); if(_tEl) _tEl.addEventListener('input', updateMetaBadge);
+  document.getElementById('resetBtn').addEventListener('click', ()=>{ const s=STYLE_LIST.find(x=>x.id===state.styleId); state.params = s.defaults(); buildControlsForStyle(); redraw(); });
+  document.getElementById('copyParamsBtn').addEventListener('click', copyParams);
+  document.getElementById('pasteParamsBtn').addEventListener('click', pasteParams);
+  document.getElementById('themeToggle').addEventListener('click', ()=>{
+    const cur = document.body.getAttribute('data-theme') || 'dark';
+    setTheme(cur==='dark' ? 'light' : 'dark');
+  });
+
+  window.addEventListener('resize', ()=>{ updateStickyOffset(); redraw(); });
+  window.addEventListener('keydown', (e)=>{
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    const editing = tag==='input' || tag==='textarea' || tag==='select' || e.ctrlKey || e.metaKey || e.altKey;
+    if(e.key==='Escape'){
+      if(document.body.classList.contains('modal-open')){ closeExportModal(); return; }
+      togglePreviewFullscreen(false);
+    }
+    if(editing) return;
+    switch(e.key){
+      case 'r': case 'R': // 随机微调
+        randomizeTartanLight();
+        break;
+      case 'f': case 'F': // 全屏预览切换
+        togglePreviewFullscreen();
+        break;
+      case 't': case 'T': // 主题切换
+        {
+          const cur = document.body.getAttribute('data-theme') || 'dark';
+          setTheme(cur==='dark' ? 'light' : 'dark');
+        }
+        break;
+      case 'e': case 'E': // 导出（暂用直接导出，后续切换为弹窗）
+        exportImage();
+        break;
+      case 'c': case 'C': // 复制配置
+        copyParams();
+        break;
+      case 'v': case 'V': // 粘贴配置
+        pasteParams();
+        break;
+    }
+  });
+  // initial random vibe (optional)
+  // randomizeAll();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+</body>
+</html>
