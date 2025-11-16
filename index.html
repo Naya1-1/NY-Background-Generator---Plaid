@@ -143,6 +143,15 @@
     background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
   }
   .color { padding: 0; width: 42px; height: 38px; }
+  /* beautified color code input + placeholder tone */
+  .input.color-code {
+    max-width: 120px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    letter-spacing: .3px;
+  }
+  .input::placeholder {
+    color: color-mix(in oklab, var(--muted) 72%, transparent);
+  }
 
   .main {
     margin-top: 16px;
@@ -690,6 +699,50 @@ function resizeCanvasToDisplaySize(){
   }
 }
 
+// 点击预览拾色（移动端/桌面通用降级）
+function pickColorFromPreview(onPick){
+  try { showToast('点击预览取色'); } catch(e){}
+  const prevCursor = canvas.style.cursor;
+  canvas.style.cursor = 'crosshair';
+
+  const handler = (clientX, clientY) => {
+    const rect = canvas.getBoundingClientRect();
+    const sx = canvas.width / rect.width;
+    const sy = canvas.height / rect.height;
+    const x = Math.max(0, Math.min(canvas.width - 1, Math.floor((clientX - rect.left) * sx)));
+    const y = Math.max(0, Math.min(canvas.height - 1, Math.floor((clientY - rect.top) * sy)));
+    let r = 0, g = 0, b = 0;
+    try {
+      const data = ctx.getImageData(x, y, 1, 1).data;
+      r = data[0]; g = data[1]; b = data[2];
+    } catch(err){}
+    const hex = rgbToHex(r, g, b);
+    if(typeof onPick === 'function') onPick(hex);
+    cleanup();
+    try { showToast('已取色'); } catch(e){}
+  };
+
+  const onClick = (ev) => { ev.preventDefault(); handler(ev.clientX, ev.clientY); };
+  const onTouch = (ev) => {
+    ev.preventDefault();
+    const t = (ev.touches && ev.touches[0]) || (ev.changedTouches && ev.changedTouches[0]);
+    if(!t){ cleanup(); return; }
+    handler(t.clientX, t.clientY);
+  };
+  const onKey = (e) => { if(e.key === 'Escape') cleanup(); };
+
+  function cleanup(){
+    canvas.style.cursor = prevCursor || '';
+    canvas.removeEventListener('click', onClick);
+    canvas.removeEventListener('touchstart', onTouch);
+    window.removeEventListener('keydown', onKey);
+  }
+
+  canvas.addEventListener('click', onClick, { passive: false });
+  canvas.addEventListener('touchstart', onTouch, { passive: false });
+  window.addEventListener('keydown', onKey);
+}
+
 /* ===== Styles registry ===== */
 const Styles = {}; // filled below
 
@@ -729,9 +782,101 @@ function ControlsAPI(container){
     container.appendChild(b); return b;
   }
   function color(label, val, onChange, hint){
-    const i = document.createElement('input'); i.type='color'; i.className='color'; i.value = val;
-    i.addEventListener('input', e => onChange(e.target.value));
-    return addField(label, i, hint);
+    // 统一取色：原生取色器 + 代码输入 + 吸管（桌面支持）
+    const wrap = document.createElement('div'); wrap.className='inline';
+
+    // helpers
+    function normalizeHex(v){
+      try{
+        if(!v) return '#000000';
+        v = String(v).trim();
+        if(v[0] !== '#') v = '#'+v;
+        const hex = v.replace('#','').trim();
+        if(/^[0-9a-fA-F]{3}$/.test(hex)){
+          const full = hex.split('').map(c=>c+c).join('');
+          const {r,g,b} = hexToRgb('#'+full);
+          return rgbToHex(r,g,b);
+        }
+        if(/^[0-9a-fA-F]{6}$/.test(hex)){
+          const {r,g,b} = hexToRgb('#'+hex);
+          return rgbToHex(r,g,b);
+        }
+        // fallback: 尝试使用 CSS 解析任意颜色字符串
+        const tmp = document.createElement('div');
+        tmp.style.color = v;
+        document.body.appendChild(tmp);
+        const cs = getComputedStyle(tmp).color; tmp.remove();
+        const m = cs && cs.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+        if(m){ return rgbToHex(parseInt(m[1],10), parseInt(m[2],10), parseInt(m[3],10)); }
+      } catch(e){}
+      return '#000000';
+    }
+    let lastHex = normalizeHex(val);
+    function apply(valHex){
+      const hx = normalizeHex(valHex);
+      if(pick.value.toLowerCase() !== hx.toLowerCase()) pick.value = hx;
+      if(code.value.toLowerCase() !== hx.toLowerCase()) code.value = hx;
+      lastHex = hx;
+      onChange(hx);
+    }
+
+    // 原生取色器（移动端/桌面通用）
+    const pick = document.createElement('input'); pick.type='color'; pick.className='color'; pick.value = normalizeHex(val);
+    pick.addEventListener('input', e => apply(e.target.value));
+    pick.addEventListener('change', e => apply(e.target.value)); // 移动端面板关闭后触发
+
+    // 十六进制颜色代码输入（#RGB/#RRGGBB）
+    const code = document.createElement('input'); code.type='text'; code.className='input color-code';
+    code.placeholder = '#RRGGBB';
+    code.autocomplete='off'; code.spellcheck=false; code.setAttribute('inputmode','text');
+    code.pattern = '^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$';
+    code.value = normalizeHex(val);
+    code.title = '输入十六进制颜色，例如 #0ea5e9';
+    // 仅在完整 #RRGGBB 时即时应用；#RGB 在提交（失焦/回车/变更）时应用，避免输入途中触发重建
+    function commitFromInputText(){
+      const t = code.value.trim();
+      const hexRaw = t.startsWith('#') ? t.slice(1) : t;
+      if(/^[0-9a-fA-F]{6}$/.test(hexRaw)){
+        apply('#'+hexRaw);
+      } else if(/^[0-9a-fA-F]{3}$/.test(hexRaw)){
+        const full = hexRaw.split('').map(c=>c+c).join('');
+        apply('#'+full);
+      } else {
+        // 无效输入：回退显示到最后一次有效值
+        code.value = lastHex;
+      }
+    }
+    code.addEventListener('input', e => {
+      const t = e.target.value.trim();
+      const hex = t.startsWith('#') ? t.slice(1) : t;
+      if(/^[0-9a-fA-F]{6}$/.test(hex)){
+        apply('#'+hex);
+      }
+    });
+    code.addEventListener('change', commitFromInputText);
+    code.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); commitFromInputText(); } });
+    code.addEventListener('blur', ()=> { commitFromInputText(); });
+
+    // 吸管取色：桌面优先 EyeDropper；否则启用“点击预览拾色”（移动端也可用）
+    const pipette = document.createElement('button'); pipette.type='button'; pipette.className='btn small ghost';
+    pipette.textContent='取色'; pipette.title='从屏幕/预览取色';
+    pipette.addEventListener('click', async ()=>{
+      if(window.EyeDropper){
+        try{
+          const ed = new EyeDropper();
+          const res = await ed.open();
+          apply(res.sRGBHex || '#000000');
+          showToast('已取色');
+        } catch(e){ /* 用户取消 */ }
+      } else {
+        pickColorFromPreview(apply);
+      }
+    });
+
+    wrap.appendChild(pick);
+    wrap.appendChild(code);
+    wrap.appendChild(pipette);
+    return addField(label, wrap, hint);
   }
   function number(label, val, min, max, step, onChange, hint){
     const i = document.createElement('input'); i.className='input'; i.type='number';
@@ -1616,7 +1761,7 @@ function init(){
           setTheme(cur==='dark' ? 'light' : 'dark');
         }
         break;
-      case 'e': case 'E': // 导出（暂用直接导出，后续切换为弹窗）
+      case 'e': case 'E': // 导出
         exportImage();
         break;
       case 'c': case 'C': // 复制配置
